@@ -2,7 +2,7 @@ sbtPlugin := true
 
 name := "sbt-clojure"
 
-organization := "org.gcouprie.sbt.plugins"
+organization := "com.unhandledexpression"
 
 version := "0.1"
 

@@ -1,4 +1,4 @@
-package org.gcouprie.sbt.plugins
+package com.unhandledexpression.sbtclojure
 
 import sbt._
 import Keys._
