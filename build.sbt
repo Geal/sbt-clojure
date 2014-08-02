@@ -18,6 +18,8 @@ publishTo := {
     Some("releases"  at nexus + "service/local/staging/deploy/maven2")
 }
 
+libraryDependencies += "org.clojure" % "clojure" % "1.5.1"
+
 publishArtifact in Test := false
 
 pomIncludeRepository := { _ => false }
