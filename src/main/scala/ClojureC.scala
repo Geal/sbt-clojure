@@ -6,12 +6,6 @@ import java.io.File
 
 import sbt.classpath.ClasspathUtilities
 
-//import clojure.lang.RT
-import clojure.lang.Var
-//import clojure.lang.Compiler
-//import clojure.lang.RT._
-//import clojure.java.api
-
 class ClojureC(val classpath : Seq[File], val sourceDirectory : File, val stubDirectory : File, val destinationDirectory : File) {
 
     lazy val oldContextClassLoader = Thread.currentThread.getContextClassLoader
@@ -98,59 +92,6 @@ class ClojureC(val classpath : Seq[File], val sourceDirectory : File, val stubDi
         finally{
           Thread.currentThread.setContextClassLoader(oldContextClassLoader)
         }
-    }
-
-    /*lazy val setGenerateStubsSrcdirMethod = generateStubsClass.getMethod("setSrcdir", pathClass)
-    lazy val setGenerateStubsDestdirMethod = generateStubsClass.getMethod("setDestdir", classOf[java.io.File])
-    lazy val setGenerateStubsProjectMethod = generateStubsClass.getMethod("setProject", projectClass)
-    lazy val executeGenerateStubsMethod = generateStubsClass.getMethod("execute")
-    */
-
-    def generateStubs() : Seq[File] =  {
-        println("source:      "+sourceDirectory)
-        println("stubs:       "+stubDirectory)
-        println("destination: "+destinationDirectory)
-        IO.createDirectory(sourceDirectory)
-        IO.createDirectory(stubDirectory)
-        try{
-          //Thread.currentThread.setContextClassLoader(classLoader)
-          /*val project = projectClass.newInstance()
-          val generateStubs = generateStubsClass.newInstance()
-          val path = pathConstructor.newInstance(project.asInstanceOf[AnyRef])
-          setLocationMethod.invoke(path, sourceDirectory)
-          setGenerateStubsSrcdirMethod.invoke(generateStubs, path.asInstanceOf[AnyRef])
-          setGenerateStubsDestdirMethod.invoke(generateStubs, stubDirectory)
-          setGenerateStubsProjectMethod.invoke(generateStubs, project.asInstanceOf[AnyRef])
-          executeGenerateStubsMethod.invoke(generateStubs)
-          */
-          Thread.currentThread().setContextClassLoader(classLoader)
-          //rtLoadFunction.invoke(null, Array("clojure/core"))
-          //loadResourceFunction.invoke(null, "src/main/clojure/hello.clj")
-          rtInitFunction.invoke(null)
-          val compilerClass   = classLoader.loadClass("clojure.lang.Compiler")
-          val loadFunction    = compilerClass.getDeclaredMethod("load", classOf[java.io.Reader])
-          val compileFunction = compilerClass.getDeclaredMethod("compile", classOf[java.io.Reader], classOf[java.lang.String], classOf[java.lang.String])
-          //loadFunction.invoke(null, new java.io.StringReader("(ns user) (println \"Hello from compiler\")"))
-
-          val associativeClass = classLoader.loadClass("clojure.lang.Associative")
-          val pushTBFunction = varClass.getDeclaredMethod("pushThreadBindings", associativeClass)
-          val popTBFunction  = varClass.getDeclaredMethod("popThreadBindings")
-
-          val compilePath = varFunction.invoke(null, "clojure.core", "*compile-path*")
-          val compileFiles = varFunction.invoke(null, "clojure.core", "*compile-files*")
-
-          val newMap = rtMap.invoke(null, Array(compilePath, destinationDirectory.getAbsolutePath(), compileFiles, true:java.lang.Boolean))
-          pushTBFunction.invoke(null, newMap)
-          println("sourcepath:      "+sourceDirectory.getAbsolutePath()+"/hello.clj")
-          compileFunction.invoke(null, new java.io.StringReader("(ns user) (println \"Hello from compiler\")"), sourceDirectory.getAbsolutePath()+"/hello.clj", "coincoin.clj")
-          popTBFunction.invoke(null)
-
-          println("pouetstubs")
-        }
-        finally{
-          Thread.currentThread.setContextClassLoader(oldContextClassLoader)
-        }
-        (stubDirectory ** "*.java").get
     }
 
 }
