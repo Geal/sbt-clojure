@@ -15,10 +15,6 @@ object ClojurePlugin extends Plugin {
     )
   }
 
-  //FIXME
-  // generateStubs in Compile -> compile in Compile -> clojurec in Compile -> generateStubs in Test -> compile in Test -> clojurec in Test -> test in Test
-
-  // to avoid namespace clashes, use a nested object
   object clojure extends Keys {
     val settings = Seq(ivyConfigurations += Config) ++ ClojureDefaults.settings ++ Seq(
       clojureSource in Compile := (sourceDirectory in Compile).value / "clojure",

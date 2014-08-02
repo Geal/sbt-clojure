@@ -26,12 +26,7 @@ class ClojureC(val classpath : Seq[File], val sourceDirectory : File, val stubDi
     }
 
     def compile() : Unit =  {
-        //println("clojurec compile source:      "+sourceDirectory)
-        //println("clojurec compile stubs:       "+stubDirectory)
-        //println("clojurec compile destination: "+destinationDirectory)
-        //getRecursiveListOfFiles(sourceDirectory).foreach(println)
         val files = getRecursiveListOfFiles(sourceDirectory)
-        //files.filter(!_.isDirectory).map(println)
 
         IO.createDirectory(sourceDirectory)
         IO.createDirectory(destinationDirectory)
@@ -58,12 +53,9 @@ class ClojureC(val classpath : Seq[File], val sourceDirectory : File, val stubDi
           }
 
           popTBFunction.invoke(null)
-
-          //println("clojure compilation ended")
         }
         finally{
           Thread.currentThread.setContextClassLoader(oldContextClassLoader)
         }
     }
-
 }
