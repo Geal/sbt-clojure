@@ -28,7 +28,7 @@ object ClojurePlugin extends Plugin {
     val settings = Seq(ivyConfigurations += Config) ++ ClojureDefaults.settings ++ Seq(
       clojureSource in Compile := (sourceDirectory in Compile).value / "clojure",
       unmanagedResourceDirectories in Compile += {(clojureSource in Compile).value},
-      generateStubs in Compile := {
+      /*generateStubs in Compile := {
         val sourceDirectory : File = (clojureSource in Compile).value
         val nb = (sourceDirectory ** "*.clj").get.size
         if(nb > 0){
@@ -42,30 +42,33 @@ object ClojurePlugin extends Plugin {
         else{
           Nil
         }
-      },
-      sourceGenerators in Compile <+= generateStubs in Compile,
+      },*/
+      //sourceGenerators in Compile <+= generateStubs in Compile,
       clojurec in Compile := {
+        val s: TaskStreams = streams.value
         val sourceDirectory : File = (clojureSource in Compile).value
+        //s.log.info("clojurSource:"+sourceDirectory)
         val nb = (sourceDirectory ** "*.clj").get.size
         if(nb > 0){
-	        val s: TaskStreams = streams.value
-	        s.log.info("Start Compiling Clojure sources")
-	        val classpath : Seq[File] = update.value.select( configurationFilter(name = "*") ) ++ Seq((classDirectory in Compile).value)
-	        val stubDirectory : File = (sourceManaged in Compile).value
-	        val destinationDirectory : File = (classDirectory in Compile).value
+          val s: TaskStreams = streams.value
+          s.log.info("Start Compiling Clojure sources")
+          val classpath : Seq[File] = update.value.select( configurationFilter(name = "*") ) ++ Seq((classDirectory in Compile).value)
+          val stubDirectory : File = (sourceManaged in Compile).value
+          val destinationDirectory : File = (classDirectory in Compile).value
 
-	        def clojureClazz(file : File) : File = {
-	          val p = file.getAbsolutePath()
-	          new File(destinationDirectory.getAbsolutePath() + p.substring(sourceDirectory.getAbsolutePath().length(), p.length() - ".clj".length()) + ".class")
-	        }
+          def clojureClazz(file : File) : File = {
+            val p = file.getAbsolutePath()
+            new File(destinationDirectory.getAbsolutePath() + p.substring(sourceDirectory.getAbsolutePath().length(), p.length() - ".clj".length()) + ".class")
+          }
 
-	        (sourceDirectory ** "*.clj").get map (clojureClazz) foreach {f => if(f.exists()){IO.delete(f)}}
+          (sourceDirectory ** "*.clj").get map (clojureClazz) foreach {f => if(f.exists()){IO.delete(f)}}
 
-	        new ClojureC(classpath, sourceDirectory, stubDirectory, destinationDirectory).compile
+          new ClojureC(classpath, sourceDirectory, stubDirectory, destinationDirectory).compile
         }
       },
-      compile in Compile <<= (compile in Compile) dependsOn (generateStubs in Compile),
-      clojurec in Compile <<= (clojurec in Compile) dependsOn (compile in Compile)
+      //compile in Compile <<= (compile in Compile) dependsOn (generateStubs in Compile),
+      compile in Compile <<= (compile in Compile) dependsOn (clojurec in Compile)
+      //clojurec in Compile <<= (clojurec in Compile) dependsOn (compile in Compile)
     )
   }
 
@@ -77,7 +80,7 @@ object ClojurePlugin extends Plugin {
 
       clojureSource in Test := (sourceDirectory in Test).value / "clojure",
       unmanagedResourceDirectories in Test += {(clojureSource in Test).value},
-      generateStubs in Test := {
+      /*generateStubs in Test := {
         val sourceDirectory : File = (clojureSource in Test).value
         val nb = (sourceDirectory ** "*.clj").get.size
         if(nb > 0){
@@ -91,8 +94,8 @@ object ClojurePlugin extends Plugin {
         else{
           Nil
         }
-      },
-      sourceGenerators in Test <+= generateStubs in Test,
+      },*/
+      //sourceGenerators in Test <+= generateStubs in Test,
       clojurec in Test := {
         val sourceDirectory : File = (clojureSource in Test).value
         val nb = (sourceDirectory ** "*.clj").get.size
@@ -113,8 +116,8 @@ object ClojurePlugin extends Plugin {
 	        new ClojureC(classpath, sourceDirectory, stubDirectory, destinationDirectory).compile
         }
       },
-      generateStubs in Test <<= (generateStubs in Test) dependsOn (clojurec in Compile),
-      compile in Test <<= (compile in Test) dependsOn (generateStubs in Test),
+      //generateStubs in Test <<= (generateStubs in Test) dependsOn (clojurec in Compile),
+      //compile in Test <<= (compile in Test) dependsOn (generateStubs in Test),
       clojurec in Test <<= (clojurec in Test) dependsOn (compile in Test),
       test in Test <<= (test in Test) dependsOn (clojurec in Test)
     ))

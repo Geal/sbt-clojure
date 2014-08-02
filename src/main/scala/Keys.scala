@@ -9,7 +9,7 @@ trait Keys {
     lazy val Config = config("clojure") extend(Compile) hide
     lazy val clojureVersion = settingKey[String]("Clojure version")
     lazy val clojureSource = settingKey[File]("Default Clojure source directory")
-    lazy val generateStubs = taskKey[Seq[File]]("Generate Java Stubs from Clojure sources")
+    //lazy val generateStubs = taskKey[Seq[File]]("Generate Java Stubs from Clojure sources")
     lazy val clojurec = taskKey[Unit]("Compile Clojure sources")
 
 }

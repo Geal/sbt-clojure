@@ -16,7 +16,7 @@ class ClojureC(val classpath : Seq[File], val sourceDirectory : File, val stubDi
 
     lazy val oldContextClassLoader = Thread.currentThread.getContextClassLoader
 
-    classpath.map(println)
+    //classpath.map(println)
     lazy val classLoader = ClasspathUtilities.toLoader(classpath)
     lazy val clojureClass = classLoader.loadClass("org.clojure.core")
     lazy val rt =  classLoader.loadClass("clojure.lang.RT")
@@ -46,9 +46,11 @@ class ClojureC(val classpath : Seq[File], val sourceDirectory : File, val stubDi
     lazy val executeGroovycMethod = groovycClass.getMethod("execute")*/
 
     def compile() : Unit =  {
+        //println("clojurec compile source:      "+sourceDirectory)
+        //println("clojurec compile stubs:       "+stubDirectory)
+        //println("clojurec compile destination: "+destinationDirectory)
         IO.createDirectory(sourceDirectory)
         IO.createDirectory(destinationDirectory)
-        val comp = varFunction.invoke("clojure.core", "compile").asInstanceOf[Var]
         try{
           //Thread.currentThread.setContextClassLoader(classLoader)
           /*val project = projectClass.newInstance()
@@ -65,11 +67,36 @@ class ClojureC(val classpath : Seq[File], val sourceDirectory : File, val stubDi
           setGroovycVerboseMethod.invoke(groovyc, true.asInstanceOf[AnyRef])
           executeGroovycMethod.invoke(groovyc)*/
 
-          println("pouet")
-          comp.invoke("main")
+          Thread.currentThread().setContextClassLoader(classLoader)
+          //rtLoadFunction.invoke(null, Array("clojure/core"))
+          //loadResourceFunction.invoke(null, "src/main/clojure/hello.clj")
+          rtInitFunction.invoke(null)
+          val compilerClass   = classLoader.loadClass("clojure.lang.Compiler")
+          val loadFunction    = compilerClass.getDeclaredMethod("load", classOf[java.io.Reader])
+          val compileFunction = compilerClass.getDeclaredMethod("compile", classOf[java.io.Reader], classOf[java.lang.String], classOf[java.lang.String])
+          //loadFunction.invoke(null, new java.io.StringReader("(ns user) (println \"Hello from compiler\")"))
+
+          val associativeClass = classLoader.loadClass("clojure.lang.Associative")
+          val pushTBFunction = varClass.getDeclaredMethod("pushThreadBindings", associativeClass)
+          val popTBFunction  = varClass.getDeclaredMethod("popThreadBindings")
+
+          val compilePath = varFunction.invoke(null, "clojure.core", "*compile-path*")
+          val compileFiles = varFunction.invoke(null, "clojure.core", "*compile-files*")
+
+          val newMap = rtMap.invoke(null, Array(compilePath, destinationDirectory.getAbsolutePath(), compileFiles, true:java.lang.Boolean))
+          //val newMap = rtMap.invoke(null, Array(compilePath, "/Users/geal/dev/scala/clj/sbt-cljtest/pouet", compileFiles, true:java.lang.Boolean))
+          pushTBFunction.invoke(null, newMap)
+          //println("sourcepath:      "+sourceDirectory.getAbsolutePath()+"/hello.clj")
+          //compileFunction.invoke(null, new java.io.StringReader("(ns user) (println \"Hello from compiler\")"), sourceDirectory.getAbsolutePath()+"/hello.clj", "coincoin.clj")
+          //compileFunction.invoke(null, new java.io.FileReader(sourceDirectory.getAbsolutePath()+"/hello.clj"), sourceDirectory.getAbsolutePath()+"/hello.clj", "hello.clj")
+          //compileFunction.invoke(null, new java.io.FileReader(sourceDirectory.getAbsolutePath()+"/hello.clj"), "src/main/clojure/hello.clj", "coincoin.clj")
+          compileFunction.invoke(null, new java.io.FileReader(sourceDirectory.getAbsolutePath()+"/hello.clj"), "hello.clj", "hello.clj")
+          popTBFunction.invoke(null)
+
+          println("clojure compilation ended")
         }
         finally{
-          //Thread.currentThread.setContextClassLoader(oldContextClassLoader)          
+          Thread.currentThread.setContextClassLoader(oldContextClassLoader)
         }
     }
 
