@@ -33,3 +33,5 @@ src/
     └── scala
         └── main.scala
 ```
+
+An [example project](https://github.com/Geal/sbt-clojure-example) is available for reference.
