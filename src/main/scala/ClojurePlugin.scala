@@ -58,7 +58,7 @@ object ClojurePlugin extends Plugin {
         if(nb > 0){
           val s: TaskStreams = streams.value
           s.log.info("Start Compiling Test Clojure sources")
-          val classpath : Seq[File] = update.value.select( configurationFilter(name = "*") ) ++ Seq((classDirectory in Test).value) ++ Seq((classDirectory in Compile).value)
+          val classpath : Seq[File] = update.value.select( configurationFilter(name = "*") ) ++ Seq((classDirectory in Test).value) ++ Seq((classDirectory in Compile).value) ++ Seq(sourceDirectory)
           val stubDirectory : File = (sourceManaged in Test).value
           val destinationDirectory : File = (classDirectory in Test).value
 
