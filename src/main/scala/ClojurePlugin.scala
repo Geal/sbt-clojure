@@ -4,11 +4,11 @@ import sbt._
 import Keys._
 import java.io.File
 
-object ClojurePlugin extends Plugin {
+object ClojurePlugin extends AutoPlugin {
 
   private object ClojureDefaults extends Keys {
     val settings = Seq(
-      clojureVersion := "1.5.1",
+      clojureVersion := "1.11.1",
       libraryDependencies ++= Seq[ModuleID](
         "org.clojure" % "clojure" % clojureVersion.value % Config.name
       )
@@ -17,18 +17,18 @@ object ClojurePlugin extends Plugin {
 
   object clojure extends Keys {
     val settings = Seq(ivyConfigurations += Config) ++ ClojureDefaults.settings ++ Seq(
-      clojureSource in Compile := (sourceDirectory in Compile).value / "clojure",
-      unmanagedResourceDirectories in Compile += {(clojureSource in Compile).value},
-      clojurec in Compile := {
+      Compile/clojureSource  := (Compile/sourceDirectory ).value / "clojure",
+      Compile/unmanagedResourceDirectories  += {(Compile/clojureSource ).value},
+      Compile/clojurec  := {
         val s: TaskStreams = streams.value
-        val sourceDirectory : File = (clojureSource in Compile).value
+        val sourceDirectory : File = (Compile/clojureSource ).value
         val nb = (sourceDirectory ** "*.clj").get.size
         if(nb > 0){
           val s: TaskStreams = streams.value
           s.log.info("Start Compiling Clojure sources")
-          val classpath : Seq[File] = update.value.select( configurationFilter(name = "*") ) ++ Seq((classDirectory in Compile).value)
-          val stubDirectory : File = (sourceManaged in Compile).value
-          val destinationDirectory : File = (classDirectory in Compile).value
+          val classpath : Seq[File] = update.value.select( configurationFilter(name = "*") ) ++ Seq((Compile/classDirectory ).value)
+          val stubDirectory : File = (Compile/sourceManaged ).value
+          val destinationDirectory : File = (Compile/classDirectory ).value
 
           def clojureClazz(file : File) : File = {
             val p = file.getAbsolutePath()
@@ -40,27 +40,27 @@ object ClojurePlugin extends Plugin {
           new ClojureC(classpath, sourceDirectory, stubDirectory, destinationDirectory).compile
         }
       },
-      compile in Compile <<= (compile in Compile) dependsOn (clojurec in Compile)
+      Compile / compile  := ((Compile/compile) dependsOn (Compile/clojurec )).value
     )
   }
 
   object testClojure extends TestKeys {
     val settings = Seq(ivyConfigurations += Config) ++ inConfig(Config)(Defaults.testTasks ++ ClojureDefaults.settings ++ Seq(
-      definedTests <<= definedTests in Test,
-      definedTestNames <<= definedTestNames in Test,
-      fullClasspath <<= fullClasspath in Test,
+      definedTests := (Test/definedTests).value ,
+      definedTestNames := (Test/definedTestNames).value ,
+      fullClasspath := (Test/fullClasspath ).value,
 
-      clojureSource in Test := (sourceDirectory in Test).value / "clojure",
-      unmanagedResourceDirectories in Test += {(clojureSource in Test).value},
-      clojurec in Test := {
-        val sourceDirectory : File = (clojureSource in Test).value
+      Test/clojureSource  := (Test/sourceDirectory ).value / "clojure",
+      Test/unmanagedResourceDirectories  += {(Test/clojureSource ).value},
+      Test/clojurec  := {
+        val sourceDirectory : File = (Test/clojureSource ).value
         val nb = (sourceDirectory ** "*.clj").get.size
+        val s: TaskStreams = streams.value
         if(nb > 0){
-          val s: TaskStreams = streams.value
           s.log.info("Start Compiling Test Clojure sources")
-          val classpath : Seq[File] = update.value.select( configurationFilter(name = "*") ) ++ Seq((classDirectory in Test).value) ++ Seq((classDirectory in Compile).value)
-          val stubDirectory : File = (sourceManaged in Test).value
-          val destinationDirectory : File = (classDirectory in Test).value
+          val classpath : Seq[File] = update.value.select( configurationFilter(name = "*") ) ++ Seq((Test/classDirectory ).value) ++ Seq((Compile/classDirectory ).value)
+          val stubDirectory : File = (Test/sourceManaged ).value
+          val destinationDirectory : File = (Test/classDirectory ).value
 
           def clojureClazz(file : File) : File = {
             val p = file.getAbsolutePath()
@@ -72,8 +72,8 @@ object ClojurePlugin extends Plugin {
           new ClojureC(classpath, sourceDirectory, stubDirectory, destinationDirectory).compile
         }
       },
-      clojurec in Test <<= (clojurec in Test) dependsOn (compile in Test),
-      test in Test <<= (test in Test) dependsOn (clojurec in Test)
+      Test/clojurec  := ((Test/clojurec ) dependsOn (Test/compile )).value,
+      Test/test  := ((Test/test ) dependsOn (Test/clojurec) ).value
     ))
   }
 }
