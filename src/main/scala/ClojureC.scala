@@ -1,16 +1,17 @@
 package com.unhandledexpression.sbtclojure
 
-import sbt._
-import sbt.Keys._
+import sbt.*
+import sbt.Keys.*
+import sbt.internal.inc.classpath.ClasspathUtilities
+import sbt.internal.inc.classpath._
 import java.io.File
 
-import sbt.classpath.ClasspathUtilities
 
 class ClojureC(val classpath : Seq[File], val sourceDirectory : File, val stubDirectory : File, val destinationDirectory : File) {
 
     lazy val oldContextClassLoader = Thread.currentThread.getContextClassLoader
 
-    lazy val classLoader = ClasspathUtilities.toLoader(classpath)
+    lazy val classLoader = ClasspathUtil.toLoader(classpath)
     lazy val clojureClass = classLoader.loadClass("org.clojure.core")
     lazy val rt =  classLoader.loadClass("clojure.lang.RT")
     lazy val varClass =  classLoader.loadClass("clojure.lang.Var")

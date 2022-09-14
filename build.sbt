@@ -4,9 +4,9 @@ name := "sbt-clojure"
 
 organization := "com.unhandledexpression"
 
-version := "0.1"
+version := "0.2"
 
-scalaVersion := "2.10.2"
+scalaVersion := "2.12.16"
 
 publishMavenStyle := true
 
@@ -23,7 +23,6 @@ libraryDependencies += "org.clojure" % "clojure" % "1.5.1"
 publishArtifact in Test := false
 
 pomIncludeRepository := { _ => false }
-
 pomExtra := (
   <url>https://github.com/Geal/sbt-clojure</url>
   <licenses>
